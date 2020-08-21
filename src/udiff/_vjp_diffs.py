@@ -1,6 +1,5 @@
 from ._vjp_core import defvjp
 
-# from ._diff_array import DiffArray
 import uarray as ua
 import unumpy as np
 from unumpy import numpy_backend
@@ -481,24 +480,6 @@ def grad_transpose(ans, x, axes=None):
 defvjp(np.transpose, grad_transpose)
 
 
-# def repeat_to_match_shape(g, shape, dtype, axis, keepdims):
-#     """Returns the array g repeated along axis to fit vector space vs.
-#        Also returns the number of repetitions of the array."""
-#     with ua.determine_backend(g, np.ndarray, domain="numpy"):
-#         nd = np.ndim(g)
-#         if axis is None:
-#             axis = range(nd)
-#         if not isinstance(axis, collections.abc.Sequence):
-#             axis = (axis,)
-
-#         axis = set(axis)
-#         new_shape = tuple(1 if a in axis else shape[a] for a in range(nd))
-#         num_reps = reduce(operator.mul, (shape[a] for a in axis), 1)
-#     # Can't use broadcast_to because of numpy bug: https://github.com/numpy/numpy/issues/9165
-#     return np.broadcast_to(np.reshape(g, new_shape), shape), num_reps
-#     # return np.reshape(g, new_shape), num_reps
-
-
 def repeat_to_match_shape(g, shape, dtype, axis, keepdims):
     """Returns the array g repeated along axis to fit vector space vs.
         Also returns the number of repetitions of the array."""
@@ -509,9 +490,7 @@ def repeat_to_match_shape(g, shape, dtype, axis, keepdims):
         new_shape = np.array(shape, dtype=int)
         new_shape[axis] = 1
         num_reps = np.prod(np.array(shape)[axis])
-    # Can't use broadcast_to because of numpy bug: https://github.com/numpy/numpy/issues/9165
     return np.broadcast_to(np.reshape(g, new_shape), shape), num_reps
-    # return np.reshape(g, new_shape) + np.zeros(shape, dtype=dtype), num_reps
 
 
 def grad_broadcast_to(ans, x, new_shape):
@@ -883,7 +862,6 @@ defvjp(np.matmul, matmul_vjp_0, matmul_vjp_1)
 
 
 def grad_sort(ans, x, axis=-1, kind="quicksort", order=None):
-    # TODO: Cast input with np.asanyarray()
     if len(np.shape(x)) > 1:
         raise NotImplementedError(
             "Gradient of sort not implemented for multi-dimensional arrays."
@@ -897,7 +875,6 @@ defvjp(np.msort, grad_sort)  # Until multi-D is allowed, these are the same.
 
 
 def grad_partition(ans, x, kth, axis=-1, kind="introselect", order=None):
-    # TODO: Cast input with np.asanyarray()
     if len(np.shape(x)) > 1:
         raise NotImplementedError(
             "Gradient of partition not implemented for multi-dimensional arrays."
